@@ -6,6 +6,9 @@ var _ = require('underscore')
 var generateFonts = require('./generateFonts')
 var renderCss = require('./renderCss')
 var renderHtml = require('./renderHtml')
+var renderSCSSFontface = require('./renderSCSSFontface')
+var renderSCSSVars = require('./renderSCSSVars')
+var renderSCSSClasses = require('./renderSCSSClasses')
 
 var TEMPLATES_DIR = path.join(__dirname, '..', 'templates')
 var TEMPLATES = {
@@ -27,6 +30,7 @@ var DEFAULT_OPTIONS = {
 	cssFontsPath: '',
 	html: false,
 	htmlTemplate: TEMPLATES.html,
+	scss: true,
 	types: ['eot', 'woff'],
 	order: ['eot', 'woff', 'ttf', 'svg'],
 	rename: function(file) {
@@ -56,6 +60,17 @@ var webfont = function(options, done) {
 	}
 	if (options.htmlDest === undefined) {
 		options.htmlDest = path.join(options.dest, options.fontName + '.html')
+	}
+
+	// scss
+	if (options.scssVarsDest === undefined) {
+		options.scssVarsDest = path.join(options.dest, '_' + options.fontName + '_vars.scss')
+	}
+	if (options.scssFontfaceDest === undefined) {
+		options.scssFontfaceDest = path.join(options.dest, '_' + options.fontName + '_fontface.scss')
+	}
+	if (options.scssClassesDest === undefined) {
+		options.scssClassesDest = path.join(options.dest, options.fontName + '.scss')
 	}
 
 	options.templateOptions = _.extend({}, DEFAULT_TEMPLATE_OPTIONS, options.templateOptions)
@@ -97,9 +112,16 @@ function writeFile(content, dest) {
 }
 
 function writeResult(fonts, options) {
+	var filepaths = {};
+	var filepath_last = null;
+	var filepath_type = null;
+
 	_.each(fonts, function(content, type) {
-		var filepath = path.join(options.dest, options.fontName + '.' + type)
-		writeFile(content, filepath)
+		var filepath = path.join(options.dest, options.fontName + '.' + type);
+		filepaths[type] = filepath;
+		filepath_last = filepath;
+		filepath_type = type;
+		writeFile(content, filepath);
 	})
 	if (options.css) {
 		var css = renderCss(options)
@@ -108,6 +130,20 @@ function writeResult(fonts, options) {
 	if (options.html) {
 		var html = renderHtml(options)
 		writeFile(html, options.htmlDest)
+	}
+
+	if (options.scss && filepath_last && filepath_type) {
+		var filepath = filepath_last;
+		var type = filepath_type;
+
+		if (filepaths['woff']) {
+			filepath = filepaths['woff'];
+			type = 'woff';
+		}
+
+		writeFile(renderSCSSFontface(options, type, filepath), options.scssFontfaceDest);
+		writeFile(renderSCSSVars(options), options.scssVarsDest);
+		writeFile(renderSCSSClasses(options), options.scssClassesDest);
 	}
 }
 
