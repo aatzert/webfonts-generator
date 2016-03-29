@@ -1,4 +1,4 @@
-function redner(options) {
+function render(options) {
 	var iconlib_prefix = 'ico-';
 	// var iconlib_prefix = '#{$code-app}-icon-';
 	var iconlib_classes = [
