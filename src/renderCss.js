@@ -21,7 +21,8 @@ var makeUrls = function(options) {
 	if (options.inlineFonts === true) {
 		urls = _.map(options.types, function(type) {
 			var fontPath = path.join(options.cssFontsPath, options.fontName + '.' + type);
-			var url = 'data:application/x-font-' + type + ';charset=utf-8;base64,' + fs.readFileSync(fontPath, {encoding: 'utf8'}).toString('base64');
+			var fontContent = fs.readFileSync(fontPath, {encoding: 'utf8'});
+			var url = 'data:application/x-font-' + type + ';charset=utf-8;base64,' + fontContent.toString('base64');
 			return url;
 		});
 		return _.object(options.types, urls);
