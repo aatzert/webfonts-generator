@@ -15,8 +15,17 @@ var calcHash = function(options) {
 }
 
 var makeUrls = function(options) {
-	var hash = calcHash(options)
-	var urls = _.map(options.types, function(type) {
+	var urls;
+	var hash = calcHash(options);
+
+	if (options.inlineFonts === true) {
+		urls = _.map(options.types, function(type) {
+			return fs.readFileSync(path.join(options.cssFontsPath, options.fontName + '.' + type));
+		});
+		return _.object(options.types, urls);
+	}
+
+	urls = _.map(options.types, function(type) {
 		return path.join(options.cssFontsPath, options.fontName + '.' + type)
 			.replace(/\\/g, '/') + '?' + hash
 	})
