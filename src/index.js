@@ -112,15 +112,8 @@ function writeFile(content, dest) {
 }
 
 function writeResult(fonts, options) {
-	var filepaths = {};
-	var filepath_last = null;
-	var filepath_type = null;
-
 	_.each(fonts, function(content, type) {
 		var filepath = path.join(options.dest, options.fontName + '.' + type);
-		filepaths[type] = filepath;
-		filepath_last = filepath;
-		filepath_type = type;
 		writeFile(content, filepath);
 	})
 	if (options.css) {
@@ -132,16 +125,10 @@ function writeResult(fonts, options) {
 		writeFile(html, options.htmlDest)
 	}
 
-	if (options.scss && filepath_last && filepath_type) {
-		var filepath = filepath_last;
-		var type = filepath_type;
+	if (options.scss) {
+		var type = options.order[0];
 
-		if (filepaths['woff']) {
-			filepath = filepaths['woff'];
-			type = 'woff';
-		}
-
-		writeFile(renderSCSSFontface(options, type, filepath), options.scssFontfaceDest);
+		writeFile(renderSCSSFontface(options, type, fonts[type]), options.scssFontfaceDest);
 		writeFile(renderSCSSVars(options), options.scssVarsDest);
 		writeFile(renderSCSSClasses(options), options.scssClassesDest);
 	}
