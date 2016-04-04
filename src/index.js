@@ -126,9 +126,11 @@ function writeResult(fonts, options) {
 	}
 
 	if (options.scss) {
-		var type = options.order[0];
+		var type = 'woff';
 
-		writeFile(renderSCSSFontface(options, type, fonts[type]), options.scssFontfaceDest);
+		if (fonts[type]) {
+			writeFile(renderSCSSFontface(options, type, fonts[type]), options.scssFontfaceDest);
+		}
 		writeFile(renderSCSSVars(options), options.scssVarsDest);
 		writeFile(renderSCSSClasses(options), options.scssClassesDest);
 	}
