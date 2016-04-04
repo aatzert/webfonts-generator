@@ -1,7 +1,8 @@
 var fs = require('fs');
 
 function render(options, type, content){
-	var url = 'data:application/x-font-' + type + ';charset=utf-8;base64,' + content.toString('base64');
+	var buffer = new Buffer(content);
+	var url = 'data:application/x-font-' + type + ';charset=utf-8;base64,' + buffer.toString('base64');
 	var css = [
 		'@font-face {',
 		'	font-family: ' + JSON.stringify(options.fontName) + ';',
